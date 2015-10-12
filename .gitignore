@@ -1,0 +1,31 @@
+# Object Files
+*.o
+*.ko
+*.obj 
+*.elf
+
+# Libraries
+*.lib 
+*.a
+*.la
+*.lo
+
+# Shared Object 
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe 
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Swap
+*.swp
+
+# Mac
+*.DS_Store
