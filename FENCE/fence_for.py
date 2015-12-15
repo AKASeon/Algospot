@@ -1,4 +1,4 @@
-`def solve( aFenceList, aListCount ):
+def solve( aFenceList, aListCount ):
 
     sTempMaxSize = 0
     sMaxSize = 0
