@@ -1,112 +1,139 @@
 #include <stdio.h>
+#include <string.h>
 
-typedef struct jlisNodeType
+int gList1[100];
+int gList2[100];
+
+int gList1Count = 0;
+int gList2Count = 0;
+
+int gJLIS[101][101];
+
+long MIN = -2147483647;
+
+int getJLIS( int       aIndex1,
+             int       aIndex2 )
 {
-    int mValue;
-    int mJlis;
-} jlisNodeType;
+    int i = 0;
+    int j = 0;
+    int sJLIS = 0;
+    int sTempJLIS = 0;
+    long sMaxValue = 0;
+    long sList1Value = 0;
+    long sList2Value = 0;
 
-jlisNodeType gList1[100];
-jlisNodeType gList2[100];
-
-int printList( jlisNodeType * aList,
-               int            aListCount )
-{
-    int sIndex = 0;
-
-    for ( sIndex = 0; sIndex < aListCount; sIndex++ )
+    /* already get it */
+    if ( gJLIS[aIndex1+1][aIndex2+1] != 0 )
     {
-        printf( "Index : %d Value : %d JLIS : %d\n", 
-                sIndex, aList[sIndex].mValue, aList[sIndex].mJlis );
+        //printf ( "aIndex1 %d aIndex2 %d return %d\n", aIndex1, aIndex2, gJLIS[aIndex1+1][aIndex2+1] );
+        return gJLIS[aIndex1+1][aIndex2+1];
     }
 
-    return 0;
-}
-int calculateJoinedLength( jlisNodeType   * aList,
-                           int              aListCount )
-{
-    int sIndex = 0;
-
-    sIndex = aListCount - 1;
-
-    /* last one */
-    aList[sIndex].mJlis = 1;
-    sIndex--;
+    if ( aIndex1 == -1 )
+    {
+        sList1Value = MIN;
+    }
+    else
+    {
+        sList1Value = gList1[aIndex1];
+    }
     
-    while ( sIndex >= 0 )
+    if ( aIndex2 == -1 )
     {
-        if ( aList[sIndex].mValue < aList[sIndex+1].mValue )
-        {
-            aList[sIndex].mJlis = aList[sIndex+1].mJlis + 1;
-        }
-        else if ( aList[sIndex].mValue == aList[sIndex].mValue )
-        {
-            aList[sIndex].mJlis = aList[sIndex+1].mJlis;
-        }
-        else
-        {
-            aList[sIndex].mJlis = 1;
-        }
-        sIndex--;
+        sList2Value = MIN;
     }
-}
-
-int getJLIS( jlisNodeType * aNode
-             jlisNodeType * aList,
-             int            aListCount )
-{
-    int sMaxJLIS = 0;
-
-    sMaxJLIS = aNode->mJLIS;
-    for ( sIndex = 0; sIndex < aListCount; sIndex++ )
+    else
     {
-        if ( aNode->mValue <= aList[sIndex].mValue )
-        {
-
-        }
-        else
-        {
-        }
-    }
-}
-
-int solve( jlisNodeType * aList1,
-           int            aList1Count,
-           jlisNodeType * aList2,
-           int            aList2Count )
-{
-    int sCount = 0;
-    int sIndex = 0;
-
-    calculateJoinedLength( aList1, aList1Count );
-    calculateJoinedLength( aList2, aList2Count );
-
-    printList( aList1, aList1Count );
-    printList( aList2, aList2Count );
-
-    for ( sIndex = aList1Count - 1;
-          sIndex >= 0;
-          sIndex-- )
-    {
+        sList2Value = gList2[aIndex2];
     }
 
-    return sCount;
+    /* get max value */
+    if ( sList1Value < sList2Value )
+    {
+        sMaxValue = sList2Value;
+        sJLIS = 2;
+    }
+    else if ( sList1Value > sList2Value )
+    {
+        sMaxValue = sList1Value;
+        sJLIS = 2;
+    }
+    else
+    {
+        sMaxValue = sList1Value;
+        sJLIS = 1;
+    }
+
+    //gJLIS[aIndex1+1][aIndex2+1] = sJLIS;
+    //printf( "Index1 %d Value %d  Index2 %d Value %d \n", aIndex1, gList1[aIndex1],aIndex2, gList2[aIndex2] );
+
+    /* list 1 */
+    for ( i = aIndex1+1; i < gList1Count; i++ )
+    {
+        //printf( "MaxValue %d, Index %d, value %d\n", sMaxValue, i, gList1[i] );
+        if ( sMaxValue < gList1[i] )
+        {
+            sTempJLIS = getJLIS( i, aIndex2 ) + 1;
+            //printf( " i : %d, aIndex2 : %d, sTempJLIS : %d JLIS %d\n", i, aIndex2, sTempJLIS, sJLIS );
+            if ( sTempJLIS > sJLIS )
+            {
+                sJLIS = sTempJLIS;
+                //gJLIS[aIndex1+1][aIndex2+1] = sJLIS;
+                //printf ( "List 1 Set JLIS aIndex1 %d aIndex2 %d JLIS %d i :%d\n", aIndex1, aIndex2, sJLIS, i );
+            }
+        }
+    }
+
+    /* list 2 */
+    for ( i = aIndex2+1; i < gList2Count; i++ )
+    {
+        //printf( "MaxValue %d, Index %d, value %d\n", sMaxValue, i, gList1[i] );
+        if ( sMaxValue < gList2[i] )
+        {
+            sTempJLIS = getJLIS( aIndex1, i ) + 1;
+            //printf( " aIndex1: %d, i: %d, sTempJLIS : %d JLIS %d\n", aIndex2, i,  sTempJLIS, sJLIS );
+            if ( sTempJLIS > sJLIS )
+            {
+                sJLIS = sTempJLIS;
+                //gJLIS[aIndex1+1][aIndex2+1] = sJLIS;
+                //printf ( "List 2 Set JLIS aIndex1 %d aIndex2 %d JLIS %d : i : %d\n", aIndex1, aIndex2, sJLIS, i );
+            }
+        }
+    }
+    //printf ( "JLIS aIndex1 %d aIndex2 %d JLIS %d : i : %d\n", aIndex1, aIndex2, sJLIS, i );
+    gJLIS[aIndex1+1][aIndex2+1] = sJLIS;
+
+    return sJLIS;
 }
 
 int main( void )
 {
-    jlisNodeType sList1[100];
-    jlisNodeType sList2[100];
+    int sCount = 0;
+    int i = 0;
+    int j = 0;
 
-    sList1[0].mValue = 1;
-    sList1[1].mValue = 2;
-    sList1[2].mValue = 3;
-    sList1[3].mValue = 4;
-    sList1[4].mValue = 5;
-    sList1[5].mValue = 6;
+    scanf( "%d", &sCount );
 
-    solve( sList1, 6,
-           sList2, 6 );
+    for ( i = 0; i < sCount; i++ )
+    {
+        memset( gJLIS, 0x00, sizeof(gJLIS) );
+
+        scanf( "%d %d", &gList1Count, &gList2Count );
+
+        /* list 1 */
+        for ( j = 0; j < gList1Count; j++ )
+        {
+            scanf( "%d ", &gList1[j] );
+        }
+        
+        /* list 2 */
+        for ( j = 0; j < gList2Count; j++ )
+        {
+            scanf( "%d ", &gList2[j] );
+        }
+        
+        printf( "%d\n", getJLIS( -1, -1 ) - 2 );
+    }
 
     return 0;
 }
