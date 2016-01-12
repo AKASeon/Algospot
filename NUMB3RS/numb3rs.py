@@ -2,21 +2,21 @@
 class City :
     def __init__( self, aID ) :
         self.mID = aID
-        self.mConnect = []
-        self.mConnectCount = 0
+        self.mConnectCityList = []
+        self.mConnectCityCount = 0
 
     def addConnectCity( self, aID ) :
-        self.mConnect.append( aID )
-        self.mConnectCount = self.mConnectCount + 1
+        self.mConnectCityList.append( aID )
+        self.mConnectCityCount = self.mConnectCityCount + 1
 
     def getID( self ) :
         return self.mID
 
-    def getConnectCount( self ) :
-        return self.mConnectCount
+    def getConnectCityCount( self ) :
+        return self.mConnectCityCount
 
-    def getConnectCity( self ) :
-        return self.mConnect
+    def getConnectCityList( self ) :
+        return self.mConnectCityList
 
 
 def printDebug( aList ) :
@@ -32,13 +32,13 @@ def getChanceRate( aCityList,
                    aChance ) :
 
     sBaseCity = aCityList[aCityIndex]
-    sConnectCity = sBaseCity.getConnectCity();
-    sChanceList = [ 0.0 ] * 50
+    sConnectCityList = sBaseCity.getConnectCityList();
+    sChanceList = [ 0.0 ] * len( aCityList )
 
-    for sIndex in range( len(sConnectCity) ) :
-        sCityIndex = sConnectCity[sIndex]
+    for sIndex in range( len(sConnectCityList) ) :
+        sCityIndex = sConnectCityList[sIndex]
         sID = aCityList[sCityIndex].getID()
-        sChance = aChance / sBaseCity.getConnectCount()
+        sChance = aChance / sBaseCity.getConnectCityCount()
         sChanceList[sID] = sChance
 
     return sChanceList
@@ -51,7 +51,7 @@ def getChanceList( aCityList,
     if aRemainDay == 0 :
         return aChanceList
 
-    sSumChanceList = [ 0.0 ] * 50
+    sSumChanceList = [ 0.0 ] * len( aCityList )
 
     for sCityIndex in range( len(aChanceList) ) :
         if ( aChanceList[sCityIndex] != 0 ) :
@@ -69,15 +69,14 @@ def solve( ) :
 
     for i in range( sTestCaseCount ) :
 
-        sCityList = [ City(-1) ] * 50
-        sChanceList = [ 0.0 ] * 50
-
         sInput = raw_input()
         sInputList = sInput.split()
 
         sRowCount = int( sInputList[0] )
         sRemainDay = int( sInputList[1] )
         sStartCity = int( sInputList[2] )
+
+        sCityList = [ 0 ] * sRowCount
 
         for sRowIndex in range( sRowCount ) :
             sInput = raw_input()
@@ -104,6 +103,6 @@ def solve( ) :
         sInput = raw_input()
         sInputList = sInput.split()
 
-        print ' '.join( format( sChanceList[int(sItem)], '.8f' ) for sItem in sInputList ) 
+        print ' '.join( format( sChanceList[int(sItem)], '.8f' ) for sItem in sInputList )
 
 solve()
