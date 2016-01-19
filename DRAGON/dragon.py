@@ -32,18 +32,21 @@ def solveX( aArray,
         return ''
 
     if aGen == 0 :
-        if aLength == 1 :
-            return 'F'
+        if aTarget == 1:
+            if aLength == 1 :
+                return 'X'
+            else :
+                return 'FX'
         else :
-            return 'FX'
+            return 'X'
 
     sResult = ''
 
     sTarget = aTarget - aArray[aGen-1]
 
-    print 'X', sTarget, aTarget, aArray[aGen-1], aGen, aLength
+    #print 'X', sTarget, aTarget, aArray[aGen-1], aGen, aLength
 
-    if sTarget < 0 :
+    if sTarget <= 0 :
         sResult = solveX( aArray, aGen-1, aTarget, aLength )
 
         sLength = aLength - len(sResult)
@@ -68,18 +71,21 @@ def solveY( aArray,
         return ''
 
     if aGen == 0 :
-        if aLength == 1 :
-            return 'Y'
+        if aTarget == 1:
+            if aLength == 1 :
+                return 'Y'
+            else :
+                return 'YF'
         else :
-            return 'YF'
+            return 'F'
 
     sResult = ''
 
     sTarget = aTarget - aArray[aGen-1]
 
-    print 'Y', sTarget, aTarget, aArray[aGen-1], aGen, aLength
+    #print 'Y', sTarget, aTarget, aArray[aGen-1], aGen, aLength
 
-    if sTarget < 0 :
+    if sTarget <= 0 :
         sResult = solveX( aArray, aGen-1, aTarget, aLength )
 
         sLength = aLength - len(sResult)
