@@ -4,29 +4,29 @@
 #define TRUE    1
 #define FALSE   0
 
-char    gArray[10][11] = { "..........",
-                          "..........",
-                          "..........",
-                          "..........",
-                          ".........." };
+char    gArray[10][11] = { 0, };
 
 int     gMaxX = 0;
 int     gMaxY = 0;
 
 /* original */
-char    gBlock1[10][11] = { ".#.",
-                            "###",
-                            "..#" };
+char    gBlock1[10][11] = { 0, };
+int     gBlock1MaxX = 0;
+int     gBlock1MaxY = 0;
 
 char    gBlock2[10][11] = { 0, };
+int     gBlock2MaxX = 0;
+int     gBlock2MaxY = 0;
 
 char    gBlock3[10][11] = { 0, };
+int     gBlock3MaxX = 0;
+int     gBlock3MaxY = 0;
 
 char    gBlock4[10][11] = { 0, };
+int     gBlock4MaxX = 0;
+int     gBlock4MaxY = 0;
 
-int     gBlockMaxX = 0;
-int     gBlockMaxY = 0;
-int     gBlockCount = 0;
+int     gMemorization[10] = { 0, };
 
 int     gTempMaxCount = 0;
 int     gMaxCount = 0;
@@ -78,26 +78,19 @@ int getBlockCount( char aBlock[10][11],
     return sBlockCount;
 }
 
-void swap( int  * aX, int   * aY )
-{
-    int sTemp = 0;
-
-    sTemp = *aX;
-    *aX = *aY;
-    *aY = *aX;
-}
-
 void rotateBlock( char aSrcBlock[10][11],
+                  int  aSrcBlockMaxX,
+                  int  aSrcBlockMaxY,
                   char aDstBlock[10][11] )
 {
     int x = 0;
     int y = 0;
 
-    for ( x = 0; x < gBlockMaxX; x++ )
+    for ( x = 0; x < aSrcBlockMaxX; x++ )
     {
-        for ( y = 0; y < gBlockMaxY; y++ )
+        for ( y = 0; y < aSrcBlockMaxY; y++ )
         {
-            aDstBlock[y][gBlockMaxX-x-1] = aSrcBlock[x][y];
+            aDstBlock[y][aSrcBlockMaxX-x-1] = aSrcBlock[x][y];
         }
     }
 }
@@ -114,12 +107,8 @@ void setMaxCount( int aTempMaxCount )
     }
 }
 
-void doNextStep( int x, int y )
+void doNextStep( int x, int y, int aBlockMaxX, int aBlockMaxY )
 {
-    int sRemainX = 0;
-    int sRemainY = 0;
-    int sRemainBlockCount = 0;
-
     y++;
 
     if ( ( x == gMaxX-1 ) && 
@@ -134,24 +123,14 @@ void doNextStep( int x, int y )
      * block 의 가로 길이가 남은길이보다 크다 
      */
     if ( ( gMaxY-1 == y ) ||
-         ( gBlockMaxY > gMaxY-y ) )
+         ( aBlockMaxY > gMaxY-y ) )
     {
         x++;
         y = 0;
     }
 
-    //sRemainX = gMaxX - x;
-    //sRemainY = gMaxY - y;
-    //sRemainBlockCount = sRemainX * sRemainY;
-
-    //if ( sRemainBlockCount < gBlockCount )
-    //{
-    //    setMaxCount( gTempMaxCount );
-    //    return;
-    //}
-
     ///* block의 세로길이가 남은 길이보다 크다 */
-    if ( gBlockMaxX > gMaxX - x )
+    if ( aBlockMaxX > gMaxX - x )
     {
         setMaxCount( gTempMaxCount );
         return;
@@ -162,15 +141,17 @@ void doNextStep( int x, int y )
 
 int fitBlockFromArray( int  aX,
                        int  aY,
-                       char aBlock[10][11] )
+                       char aBlock[10][11],
+                       int  aBlockMaxX,
+                       int  aBlockMaxY )
 {
     int     i = 0;
     int     j = 0;
     int     sRC = TRUE;
 
-    for ( i = 0; i < gBlockMaxX; i++ )
+    for ( i = 0; i < aBlockMaxX; i++ )
     {
-        for ( j = 0; j < gBlockMaxY; j++ )
+        for ( j = 0; j < aBlockMaxY; j++ )
         {
             if ( aBlock[i][j] == '#' )
             {
@@ -197,14 +178,16 @@ int fitBlockFromArray( int  aX,
 
 void fillArrayFromBlock( int  aX,
                          int  aY,
-                         char aBlock[10][11] )
+                         char aBlock[10][11],
+                         int  aBlockMaxX,
+                         int  aBlockMaxY )
 {
     int i = 0;
     int j = 0;
 
-    for ( i = 0; i < gBlockMaxX; i++ )
+    for ( i = 0; i < aBlockMaxX; i++ )
     {
-        for ( j = 0; j < gBlockMaxY; j++ )
+        for ( j = 0; j < aBlockMaxY; j++ )
         {
             if ( aBlock[i][j] == '#' )
             {
@@ -220,14 +203,16 @@ void fillArrayFromBlock( int  aX,
 
 void recoverArrayFromBlock( int  aX,
                             int  aY,
-                            char aBlock[10][11])
+                            char aBlock[10][11],
+                            int  aBlockMaxX,
+                            int  aBlockMaxY )
 {
     int i = 0;
     int j = 0;
 
-    for ( i = 0; i < gBlockMaxX; i++ )
+    for ( i = 0; i < aBlockMaxX; i++ )
     {
-        for ( j = 0; j < gBlockMaxY; j++ )
+        for ( j = 0; j < aBlockMaxY; j++ )
         {
             if ( aBlock[i][j] == '#' )
             {
@@ -243,20 +228,24 @@ void recoverArrayFromBlock( int  aX,
                         
 void processArray( int  aX, 
                    int  aY,
-                   char aBlock[10][11] )
+                   char aBlock[10][11],
+                   int  aBlockMaxX,
+                   int  aBlockMaxY )
 {
     if ( fitBlockFromArray( aX,
                             aY,
-                            aBlock )
+                            aBlock,
+                            aBlockMaxX,
+                            aBlockMaxY )
          == TRUE )
     {
         gTempMaxCount++;
 
-        fillArrayFromBlock( aX, aY, aBlock );
+        fillArrayFromBlock( aX, aY, aBlock, aBlockMaxX, aBlockMaxY );
 
-        doNextStep( aX, aY );
+        doNextStep( aX, aY, aBlockMaxX, aBlockMaxY );
 
-        recoverArrayFromBlock( aX, aY, aBlock );
+        recoverArrayFromBlock( aX, aY, aBlock, aBlockMaxX, aBlockMaxY );
 
         gTempMaxCount--;
     }
@@ -269,38 +258,44 @@ void process( int x, int y )
 
     processArray( x, 
                   y, 
-                  gBlock1 );
-
-    swap( &gBlockMaxX, &gBlockMaxY );
-
-    processArray( x, 
-                  y, 
-                  gBlock2 );
-    swap( &gBlockMaxX, &gBlockMaxY );
+                  gBlock1,
+                  gBlock1MaxX,
+                  gBlock1MaxY );
 
     processArray( x, 
                   y, 
-                  gBlock3 );
-    swap( &gBlockMaxX, &gBlockMaxY );
+                  gBlock2,
+                  gBlock1MaxX,
+                  gBlock1MaxY );
 
     processArray( x, 
                   y, 
-                  gBlock4 );
-    swap( &gBlockMaxX, &gBlockMaxY );
+                  gBlock3,
+                  gBlock3MaxX,
+                  gBlock3MaxY );
 
-    doNextStep( x, y );
+    processArray( x, 
+                  y, 
+                  gBlock4,
+                  gBlock4MaxX,
+                  gBlock4MaxY );
+
+    doNextStep( x, y, gBlock1MaxX, gBlock1MaxY );
 }
 
 void makeBlock( void )
 {
-    rotateBlock( gBlock1, gBlock2 );
-    swap( &gBlockMaxX, &gBlockMaxY );
+    rotateBlock( gBlock1, gBlock1MaxX, gBlock1MaxY, gBlock2 );
+    gBlock2MaxX = gBlock1MaxY;
+    gBlock2MaxY = gBlock1MaxX;
 
-    rotateBlock( gBlock2, gBlock3 );
-    swap( &gBlockMaxX, &gBlockMaxY );
+    rotateBlock( gBlock2, gBlock2MaxX, gBlock2MaxY, gBlock3 );
+    gBlock3MaxX = gBlock2MaxY;
+    gBlock3MaxY = gBlock2MaxX;
 
-    rotateBlock( gBlock3, gBlock4 );
-    swap( &gBlockMaxX, &gBlockMaxY );
+    rotateBlock( gBlock3, gBlock3MaxX, gBlock3MaxY, gBlock4 );
+    gBlock4MaxX = gBlock3MaxY;
+    gBlock4MaxY = gBlock3MaxX;
 }
 
 int main( void )
@@ -318,7 +313,7 @@ int main( void )
         gTempMaxCount = 0;
 
         /* input Arrary Size and Block Size */
-        scanf( "%d %d %d %d", &gMaxX, &gMaxY, &gBlockMaxX, &gBlockMaxY );
+        scanf( "%d %d %d %d", &gMaxX, &gMaxY, &gBlock1MaxX, &gBlock1MaxY );
 
         /* input gArray */
         for ( sRowIndex = 0; sRowIndex < gMaxX; sRowIndex++ )
@@ -327,15 +322,12 @@ int main( void )
         }
 
         /* input gBlock */
-        for ( sRowIndex = 0; sRowIndex < gBlockMaxX; sRowIndex++ )
+        for ( sRowIndex = 0; sRowIndex < gBlock1MaxX; sRowIndex++ )
         {
             scanf( "%s", gBlock1[sRowIndex] );
         }
 
         makeBlock();
-        gBlockCount = getBlockCount( gBlock1,
-                                     gBlockMaxX,
-                                     gBlockMaxY );
         process( 0, 0 );
 
         printf( "%d\n", gMaxCount );
