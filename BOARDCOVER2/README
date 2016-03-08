@@ -1,0 +1,41 @@
+ 
+step 1
+before skip;
+DoO@DooSeonui-MacBook-Air BOARDCOVER2   master ●  time ./a.out < in.txt
+ 4
+ 8
+ 9
+./a.out < in.txt  54.97s user 0.48s system 98% cpu 56.308 total
+
+step 2
+!! after skip index
+DoO@DooSeonui-MacBook-Air BOARDCOVER2   master ●  time ./a.out < in.txt
+ 3
+ 8
+ 9
+./a.out < in.txt  14.77s user 0.14s system 98% cpu 15.145 total
+
+step 3
+!! remain block skip..
+DoO@DooSeonui-MacBook-Air BOARDCOVER2   master ●  time ./a.out < in.txt 
+3
+8
+9
+./a.out < in.txt  11.14s user 0.07s system 99% cpu 11.308 total
+
+step 4
+
+DoO@DooSeonui-MacBook-Air BOARDCOVER2   master ●  time ./a.out < in.txt
+3
+8
+9
+./a.out < in.txt  11.02s user 0.02s system 99% cpu 11.060 total`
+
+step 5. max value
+step 6. skip fit and recover ..
+DoO@DooSeonui-MacBook-Air BOARDCOVER2   master ●  time ./a.out < in.txt
+3
+8
+9
+./a.out < in.txt  10.78s user 0.04s system 99% cpu 10.877 total
+

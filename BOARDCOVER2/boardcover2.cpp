@@ -6,6 +6,9 @@
 
 char    gArray[10][11] = { 0, };
 
+int     gArrayBlockCount[10] = { 0, };
+int     gArrayCount = 0;
+
 int     gMaxX = 0;
 int     gMaxY = 0;
 
@@ -26,10 +29,13 @@ char    gBlock4[10][11] = { 0, };
 int     gBlock4MaxX = 0;
 int     gBlock4MaxY = 0;
 
-int     gMemorization[10] = { 0, };
+int     gBlockCount = 0;
+
 
 int     gTempMaxCount = 0;
 int     gMaxCount = 0;
+
+int     gMaxFitBlockCount = 0;
 
 void printArray( void )
 {
@@ -55,28 +61,8 @@ void printBlock( char aBlock[10][11],
     }
 }
 
-void process( int x, int y );
+void process( int x, int y, int step );
 
-int getBlockCount( char aBlock[10][11],
-                   int  aBlockMaxX,
-                   int  aBlockMaxY )
-{
-    int i = 0, j = 0;
-    int sBlockCount = 0;
-
-    for ( i = 0; i < aBlockMaxX; i++ )
-    {
-        for ( j = 0; j < aBlockMaxY; j++ )
-        {
-            if ( aBlock[i][j] == '#' )
-            {
-                sBlockCount++;
-            }
-        }
-    }
-
-    return sBlockCount;
-}
 
 void rotateBlock( char aSrcBlock[10][11],
                   int  aSrcBlockMaxX,
@@ -107,16 +93,16 @@ void setMaxCount( int aTempMaxCount )
     }
 }
 
-void doNextStep( int x, int y, int aBlockMaxX, int aBlockMaxY )
+void doNextStep( int x, int y, int aBlockMaxX, int aBlockMaxY, int step )
 {
     y++;
 
-    if ( ( x == gMaxX-1 ) && 
-         ( y == gMaxY-1 ) )
-    {
-        setMaxCount( gTempMaxCount );
-        return;
-    }
+    //if ( ( x == gMaxX-1 ) && 
+    //     ( y == gMaxY-1 ) )
+    //{
+    //    setMaxCount( gTempMaxCount );
+    //    return;
+    //}
 
     /* 
      * 더이상 옆으로 이동을 못한다.
@@ -127,16 +113,29 @@ void doNextStep( int x, int y, int aBlockMaxX, int aBlockMaxY )
     {
         x++;
         y = 0;
+
+        if ( step == 0 )
+        {
+            gArrayCount -= gArrayBlockCount[x-1];
+        }
     }
 
-    ///* block의 세로길이가 남은 길이보다 크다 */
+    /*
+     * block의 세로길이가 남은 길이보다 크다 
+     */
     if ( aBlockMaxX > gMaxX - x )
     {
         setMaxCount( gTempMaxCount );
         return;
     }
 
-    process( x, y );
+    if ( gArrayCount < gBlockCount )
+    {
+        setMaxCount( gTempMaxCount );
+        return;
+    }
+
+    process( x, y, step );
 }
 
 int fitBlockFromArray( int  aX,
@@ -184,6 +183,7 @@ void fillArrayFromBlock( int  aX,
 {
     int i = 0;
     int j = 0;
+    int sRemain = gBlockCount;
 
     for ( i = 0; i < aBlockMaxX; i++ )
     {
@@ -192,11 +192,15 @@ void fillArrayFromBlock( int  aX,
             if ( aBlock[i][j] == '#' )
             {
                 gArray[aX+i][aY+j] = '#';
+                sRemain--;
             }
             else
             {
                 /* do nothing */
             }
+
+            if ( sRemain == 0 )
+                return;
         }
     }
 }
@@ -209,6 +213,7 @@ void recoverArrayFromBlock( int  aX,
 {
     int i = 0;
     int j = 0;
+    int sRemain = gBlockCount;
 
     for ( i = 0; i < aBlockMaxX; i++ )
     {
@@ -217,20 +222,25 @@ void recoverArrayFromBlock( int  aX,
             if ( aBlock[i][j] == '#' )
             {
                 gArray[aX+i][aY+j] = '.';
+                sRemain--;
             }
             else
             {
                 /* do nothing */
             }
+
+            if ( sRemain == 0 )
+                return;
         }
     }
 }
                         
-void processArray( int  aX, 
-                   int  aY,
-                   char aBlock[10][11],
-                   int  aBlockMaxX,
-                   int  aBlockMaxY )
+int processArray( int  aX, 
+                  int  aY,
+                  char aBlock[10][11],
+                  int  aBlockMaxX,
+                  int  aBlockMaxY,
+                  int  aStep)
 {
     if ( fitBlockFromArray( aX,
                             aY,
@@ -242,45 +252,62 @@ void processArray( int  aX,
         gTempMaxCount++;
 
         fillArrayFromBlock( aX, aY, aBlock, aBlockMaxX, aBlockMaxY );
+        gArrayCount -= gBlockCount;
 
-        doNextStep( aX, aY, aBlockMaxX, aBlockMaxY );
+        doNextStep( aX, aY, aBlockMaxX, aBlockMaxY, aStep );
+
+        if ( gMaxCount == gMaxFitBlockCount )
+            return FALSE;
 
         recoverArrayFromBlock( aX, aY, aBlock, aBlockMaxX, aBlockMaxY );
+        gArrayCount += gBlockCount;
 
         gTempMaxCount--;
     }
+
+    return TRUE;
 }
 
-void process( int x, int y )
+void process( int x, int y, int step )
 {
     int     sIndex = 0;
     int     sTemp = 0;
+    int     sContinue = TRUE;
 
-    processArray( x, 
+    sContinue = processArray( x, 
                   y, 
                   gBlock1,
                   gBlock1MaxX,
-                  gBlock1MaxY );
+                  gBlock1MaxY,
+                  step+1);
 
-    processArray( x, 
+    if ( sContinue == TRUE )
+        sContinue = processArray( x, 
                   y, 
                   gBlock2,
-                  gBlock1MaxX,
-                  gBlock1MaxY );
+                  gBlock2MaxX,
+                  gBlock2MaxY,
+                  step+1);
 
-    processArray( x, 
+
+    if ( sContinue == TRUE )
+        sContinue = processArray( x, 
                   y, 
                   gBlock3,
                   gBlock3MaxX,
-                  gBlock3MaxY );
+                  gBlock3MaxY,
+                  step+1);
 
-    processArray( x, 
+    if ( sContinue == TRUE )
+        sContinue = processArray( x, 
                   y, 
                   gBlock4,
                   gBlock4MaxX,
-                  gBlock4MaxY );
+                  gBlock4MaxY,
+                  step+1);
 
-    doNextStep( x, y, gBlock1MaxX, gBlock1MaxY );
+    if ( sContinue == TRUE )
+        doNextStep( x, y, gBlock1MaxX, gBlock1MaxY, step );
 }
 
 void makeBlock( void )
@@ -297,6 +324,51 @@ void makeBlock( void )
     gBlock4MaxX = gBlock3MaxY;
     gBlock4MaxY = gBlock3MaxX;
 }
+
+int getBlockCount( char    aBlockArray[10][11],
+                   int     aMaxX,
+                   int     aMaxY )
+{
+    int i = 0;
+    int j = 0;
+    int sCount = 0;
+
+    for ( i = 0; i < aMaxX; i++ )
+    {
+        for ( j = 0; j < aMaxY; j++ )
+        {
+            if ( aBlockArray[i][j] == '#' )
+            {
+                sCount++;
+            }
+        }
+    }
+
+    return sCount;
+}
+
+void getArrayBlockCount( void )
+{
+    int i = 0;
+    int j = 0;
+
+    gArrayCount = 0;
+
+    for ( i = 0; i < gMaxX; i++ )
+    {
+        gArrayBlockCount[i] = 0;
+
+        for ( j = 0; j < gMaxY; j++ )
+        {
+            if ( gArray[i][j] == '.' )
+            {
+                gArrayBlockCount[i]++;
+            }
+        }
+        gArrayCount += gArrayBlockCount[i];
+    }
+}
+
 
 int main( void )
 {
@@ -328,7 +400,16 @@ int main( void )
         }
 
         makeBlock();
-        process( 0, 0 );
+    
+        gBlockCount = getBlockCount( gBlock1,
+                                     gBlock1MaxX,
+                                     gBlock1MaxY );
+
+        getArrayBlockCount();
+
+        gMaxFitBlockCount = 50 / gBlockCount;
+
+        process( 0, 0, 0 );
 
         printf( "%d\n", gMaxCount );
     }
