@@ -21,7 +21,7 @@ def josephus ( aCount, aJumpNumber ) :
 
             if sSequenceNumber == aJumpNumber :
                 #print "Remote : ", sNode
-                sList.remove( sNode ) 
+                sList.remove( sNode )
                 sSequenceNumber = 0
 
             if len( sList ) == 2 :
@@ -40,7 +40,7 @@ def main() :
         sInput = raw_input()
         sInput_list = sInput.split()
 
-        josephus( int( sInput_list[0] ), 
+        josephus( int( sInput_list[0] ),
                   int( sInput_list[1] ) )
 
 main()

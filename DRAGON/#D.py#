@@ -1,0 +1,47 @@
+#nextGeneration = currentGeneration + currentGeneration[:mid] + "-" + currentGeneration[mid+1:]
+
+generationMap = {0: "FX",
+                 1: "FX+YF"}
+
+;q
+DEFuuuuuuuuuu:q!
+q:q
+
+
+d:q
+
+
+:q!
+c getGeneration(nth):
+    if nth in generationMap:
+        return generationMap[nth]
+    else:
+        beforeGen = getGeneration(nth-1)
+        mid = len(beforeGen)/2
+        curGen = beforeGen + "+" + beforeGen[:mid] + "-" + beforeGen[mid+1:]
+        generationMap[nth] = curGen
+        return curGen
+
+#print(getGeneration(2)[5:5+5])
+#print(generationMap)
+
+def getPattern(nth, start, length):
+    nthLen = 2**int(nth)
+    if nthLen < 64: # This means that calculatable time
+        return getGeneration(nth)[start:start+length]
+    else:
+        mid = nthLen/2
+        if start > mid:
+            if start+length > mid:
+                return getPattern(nth-1, start, mid-start) + "+"
+                + getPattern(nth-1, 0, start+length-mid)
+            else:
+                return getPattern(nth-1, start-mid, length)
+        else:
+            if start+length > mid:
+                return getPattern(nth-1, start, mid-start) + "+"
+                + getPattern(nth-1, 0, start+length-mid)
+            else:
+                return getPattern(nth-1, start-mid, length)
+
+print(getPattern(42, 764853475, 30))

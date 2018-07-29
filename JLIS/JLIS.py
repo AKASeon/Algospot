@@ -61,12 +61,13 @@ def solve() :
 
     for i in range( sCount ) :
 
-        gJLIS = [ [ int(0) for i in range(101) ] for i in range(101) ]
+        gJLIS = [ [ int(0) ] * 101 for i in range(101) ]
 
         sInput = raw_input()
 
         sInput = raw_input().split()
-        gList1 = [ int(num) for num in sInput ]
+        #gList1 = [ int(num) for num in sInput ]
+        gList1 = map( int, sInput );
         gList1Count = len( gList1 )
 
         sInput = raw_input().split()

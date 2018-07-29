@@ -1,5 +1,4 @@
 
-
 def getMinCost( aLengthList ) :
 
     if len(aLengthList) == 1 :
